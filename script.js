@@ -243,8 +243,26 @@ function isValidPhone(phone) {
  * @param {string} message - Mensagem de erro
  */
 function showFieldError(fieldName, message) {
-    const input = document.getElementById(fieldName)
-    const errorElement = document.getElementById(`${fieldName}Error`)
+    // Primeiro tentar localizar pelo id (caso padrão), senão procurar pelo name
+    let input = document.getElementById(fieldName)
+    if (!input) {
+        input = document.querySelector(`[name="${fieldName}"]`)
+    }
+
+    // Procurar elemento de erro pelo id padrão `${fieldName}Error`, se não achar
+    // tentar `${fieldName}Error` já existente (mantém compatibilidade)
+    let errorElement = document.getElementById(`${fieldName}Error`)
+    if (!errorElement) {
+        // Tentar localizar um elemento de erro associado por proximidade (mesmo name)
+        const inputByName = document.querySelector(`[name="${fieldName}"]`)
+        if (inputByName) {
+            // procurar próxima .error-message dentro do mesmo card
+            const parentCard = inputByName.closest('.register-card, .login-card')
+            if (parentCard) {
+                errorElement = parentCard.querySelector(`#${fieldName}Error`) || parentCard.querySelector('.error-message')
+            }
+        }
+    }
 
     if (input && errorElement) {
         input.classList.add('error')
@@ -258,8 +276,21 @@ function showFieldError(fieldName, message) {
  * @param {string} fieldName - Nome do Campo
  */
 function clearFieldError(fieldName) {
-    const input = document.getElementById(fieldName)
-    const errorElement = document.getElementById(`${fieldName}Error`)
+    let input = document.getElementById(fieldName)
+    if (!input) {
+        input = document.querySelector(`[name="${fieldName}"]`)
+    }
+
+    let errorElement = document.getElementById(`${fieldName}Error`)
+    if (!errorElement) {
+        const inputByName = document.querySelector(`[name="${fieldName}"]`)
+        if (inputByName) {
+            const parentCard = inputByName.closest('.register-card, .login-card')
+            if (parentCard) {
+                errorElement = parentCard.querySelector(`#${fieldName}Error`) || parentCard.querySelector('.error-message')
+            }
+        }
+    }
 
     if (input && errorElement) {
         input.classList.remove('error')
@@ -354,10 +385,10 @@ function handleFormSubmit() {
 ///////
 // FORMULÁRIO DE LOGIN
 
-// Objeto para armazenar os dados do formulário
+// Objeto para armazenar os dados do formulário (use os mesmos nomes que os atributos `name` do form)
 let formDataLogin = {
-    emailLogin: '',
-    passwordLogin: '',
+    email: '',
+    password: '',
 }
 
 function initializeFormLogin() {
@@ -473,8 +504,8 @@ function handleFormLogar() {
         console.log("✅ LOGIN REALIZADO COM SUCESSO!")
         console.log("=".repeat(50))
         console.log("DADOS DO USUÁRIO:")
-        console.log(`E-mail: ${formDataLogin.emailLogin}`)
-        console.log(`Senha: ${formDataLogin.passwordLogin}`)
+    console.log(`E-mail: ${formDataLogin.email}`)
+    console.log(`Senha: ${formDataLogin.password}`)
         console.log("Data/Hora: ", new Date().toLocaleString("pt-BR"))
         console.log("=".repeat(50))
 
